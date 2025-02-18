@@ -2,8 +2,8 @@
 import csv
 import sys
 from launchpadlib.launchpad import Launchpad
-# import httplib2
-# httplib2.debuglevel = 1
+import httplib2
+httplib2.debuglevel = 1
 
 """dumplp.py  [options]
 
@@ -49,26 +49,24 @@ def filter_bugs(bugs):
 def write_bugs_to_csv(bugs, filename='bugs.csv'):
     print(f'LP: Writing CSV', file=sys.stderr)
 
-    for bug in bugs:
-        # print(f'>>>>>>>>>>>> {bug.bug.id},{bug.web_link}')
-        # print(f'>>>>>>>>>>>> {bug.title},{bug.status},{bug.importance}')
-        # print(f'>>>>>>>>>>>> {bug.assignee.name if bug.assignee else "Unassigned"},{bug.date_created}')
-        print(f'{bug.bug.id},{bug.web_link},{bug.title},{bug.status},{bug.importance},{bug.assignee.name if bug.assignee else "Unassigned"},{bug.date_created}')
-        
-    # with open(filename, 'w', newline='') as csvfile:
-    #     fieldnames = ['ID', 'Title', 'Status', 'Importance', 'Assignee', 'Date Created']
-    #     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    # for bug in bugs:
+        # # print(f'{bug.bug.id},{bug.web_link},{bug.title},{bug.status},{bug.importance},{bug.assignee.name if bug.assignee else "Unassigned"},{bug.date_created}')
+        # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+        # print(f'{bug.web_link},{bug.title},{bug.status},{bug.importance},{bug.date_created}')
+        # print('<<<<<<<<<<<<<<<<<<<<<<<<<<<')
 
-    #     writer.writeheader()
-    #     for bug in bugs:
-    #         writer.writerow({
-    #             'ID': bug.bug.id,
-    #             'Title': bug.title,
-    #             'Status': bug.status,
-    #             'Importance': bug.importance,
-    #             'Assignee': bug.assignee.name if bug.assignee else 'Unassigned',
-    #             'Date Created': bug.date_created
-    #         })
+    with open(filename, 'w', newline='') as csvfile:
+        fieldnames = ['Link', 'Title', 'Status', 'Importance']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        writer.writeheader()
+        for bug in bugs:
+            writer.writerow({
+                'Link': bug.web_link,
+                'Title': bug.title,
+                'Status': bug.status,
+                'Importance': bug.importance,
+            })
 
 def main():
     project_name = 'juju'
