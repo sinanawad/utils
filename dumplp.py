@@ -2,8 +2,8 @@
 import csv
 import sys
 from launchpadlib.launchpad import Launchpad
-import httplib2
-httplib2.debuglevel = 1
+# import httplib2
+# httplib2.debuglevel = 1
 
 """dumplp.py  [options]
 
@@ -40,13 +40,13 @@ def fetch_bugs(project_name):
     launchpad = lp_login()
     project = launchpad.projects[project_name]
     print(f'LP: Fetching bugs', file=sys.stderr)
-    return project.searchTasks(status=['New', 'Incomplete', 'Confirmed', 'Triaged', 'In Progress', 'Fix Committed'])
+    return project.searchTasks(status=['New', 'Incomplete', 'Confirmed', 'Triaged', 'In Progress', 'Fix Committed']) #,modified_since='2024-01-01T00:00:00Z')
 
 def filter_bugs(bugs):
     # Add any filtering logic here if needed
     return bugs
 
-def write_bugs_to_csv(bugs, filename='bugs.csv'):
+def write_bugs_to_csv(bugs, dump_to_stdout=False,  filename='bugs.csv'):
     print(f'LP: Writing CSV', file=sys.stderr)
 
     # for bug in bugs:
@@ -56,26 +56,33 @@ def write_bugs_to_csv(bugs, filename='bugs.csv'):
         # print('<<<<<<<<<<<<<<<<<<<<<<<<<<<')
 
     with open(filename, 'w', newline='') as csvfile:
-        fieldnames = ['Link', 'Title', 'Status', 'Importance']
+        fieldnames = ['Link', 'Title', 'Status', 'Importance', 'Date Created']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
         for bug in bugs:
+            if dump_to_stdout:
+                print(f'{bug.web_link},{bug.title},{bug.status},{bug.importance},{bug.date_created}')
             writer.writerow({
                 'Link': bug.web_link,
                 'Title': bug.title,
                 'Status': bug.status,
                 'Importance': bug.importance,
+                'Date Created': bug.date_created
             })
 
 def main():
     project_name = 'juju'
+    dump_to_stdout = False
     if '--project' in sys.argv:
         project_name = sys.argv[sys.argv.index('--project') + 1]
+    if '--stdout' in sys.argv:
+        dump_to_stdout = True
+        print('LP: Dumping to stdout', file=sys.stderr)
 
     bugs = fetch_bugs(project_name)
     filtered_bugs = filter_bugs(bugs)
-    write_bugs_to_csv(filtered_bugs)
+    write_bugs_to_csv(filtered_bugs, dump_to_stdout)
 
 if __name__ == '__main__':
     main()
