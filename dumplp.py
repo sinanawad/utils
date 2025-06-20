@@ -40,35 +40,30 @@ def fetch_bugs(project_name):
     launchpad = lp_login()
     project = launchpad.projects[project_name]
     print(f'LP: Fetching bugs', file=sys.stderr)
-    return project.searchTasks(status=['New', 'Incomplete', 'Confirmed', 'Triaged', 'In Progress', 'Fix Committed']) #,modified_since='2024-01-01T00:00:00Z')
+    return project.searchTasks(status=['New', 'Incomplete', 'Confirmed', 'Triaged', 'In Progress', 'Fix Committed'], modified_since='2024-01-01T00:00:00Z')
 
 def filter_bugs(bugs):
-    # Add any filtering logic here if needed
-    return bugs
+    # Sort bugs by date_last_updated (modified date) in descending order (newest first)
+    return sorted(bugs, key=lambda bug: bug.bug.date_last_updated, reverse=True)
 
 def write_bugs_to_csv(bugs, dump_to_stdout=False,  filename='bugs.csv'):
     print(f'LP: Writing CSV', file=sys.stderr)
 
-    # for bug in bugs:
-        # # print(f'{bug.bug.id},{bug.web_link},{bug.title},{bug.status},{bug.importance},{bug.assignee.name if bug.assignee else "Unassigned"},{bug.date_created}')
-        # print('>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-        # print(f'{bug.web_link},{bug.title},{bug.status},{bug.importance},{bug.date_created}')
-        # print('<<<<<<<<<<<<<<<<<<<<<<<<<<<')
-
     with open(filename, 'w', newline='') as csvfile:
-        fieldnames = ['Link', 'Title', 'Status', 'Importance', 'Date Created']
+        fieldnames = ['Link', 'Title', 'Status', 'Importance', 'Date Created', 'Last Modified']
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
         writer.writeheader()
         for bug in bugs:
             if dump_to_stdout:
-                print(f'{bug.web_link},{bug.title},{bug.status},{bug.importance},{bug.date_created}')
+                print(f'{bug.web_link},{bug.title},{bug.status},{bug.importance},{bug.date_created},{bug.bug.date_last_updated}')
             writer.writerow({
                 'Link': bug.web_link,
                 'Title': bug.title,
                 'Status': bug.status,
                 'Importance': bug.importance,
-                'Date Created': bug.date_created
+                'Date Created': bug.date_created,
+                'Last Modified': bug.bug.date_last_updated
             })
 
 def main():

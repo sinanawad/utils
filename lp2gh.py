@@ -71,9 +71,8 @@ from github import Github
 from github import Auth
 
 APP_NAME = 'lp2gh'
-LP_ENVIRON = 'qastaging'  #'production'
+LP_ENVIRON = 'production'  #'qastaging' 
 RELOC_TAG = 'relocated-to-github'
-GH_TRIAGE_LABEL = 'state/untriaged'
 GH_IMPORT_LABEL = 'imported-from-lp'
 GH_DEFAULT_REPO = 'sinanawad/utils' #'juju/juju'
 
@@ -138,7 +137,6 @@ def gh_create_issue(lp_bug, gh, args):
     print(f'GH: Added Launchpad bug link to issue', file=sys.stderr)
     
     if global_commit_changes:
-        gh_issue.add_to_labels(GH_TRIAGE_LABEL)
         gh_issue.add_to_labels(GH_IMPORT_LABEL)
     
     if not args.do_not_assign:
